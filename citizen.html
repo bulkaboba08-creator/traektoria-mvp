@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Траектория — Кабинет гражданина</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Локальные стили страницы «Кабинет гражданина» (только var(--токены)) */
+    .profile-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .profile-id { display: flex; align-items: center; gap: 18px; flex: 1 1 320px; min-width: 0; }
+    .profile-id > div { min-width: 0; }
+    .avatar-xl { width: 76px; height: 76px; font-size: 26px; }
+    .profile-name { font-size: 24px; margin: 0 0 4px; overflow-wrap: break-word; }
+    .profile-role { font-weight: 600; margin-top: 2px; overflow-wrap: break-word; }
+    .profile-score { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; max-width: 180px; }
+    .profile-score .score-ring__num { font-size: 26px; }
+    .profile-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+
+    .tl-stage-title { font-size: 17px; font-weight: 700; }
+    .tl-card { background: #F7F9FD; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 10px; }
+    .tl-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .north-card { background: #EFF4FF; border-color: #C9D8FF; border-left: 4px solid var(--primary); }
+    .quote { border-left: 3px solid var(--border); padding-left: 12px; font-style: italic; color: var(--text-2); margin: 10px 0 0; }
+    .etk-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .etk-row:first-child { padding-top: 0; }
+    .etk-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .kpi-mini { padding: 14px 18px; box-shadow: none; border: 1px solid var(--border); background: #F7F9FD; }
+    .kpi-mini .kpi-value { font-size: 26px; }
+
+    .chip-sm { padding: 5px 12px; font-size: 13px; }
+    .chip-score { background: #E4ECFF; color: var(--primary); font-weight: 600; }
+    .chip-score:hover { background: #E4ECFF; }
+
+    .comp-grid { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: 28px; align-items: center; }
+    .comp-row { margin-bottom: 14px; }
+    .comp-row:last-child { margin-bottom: 0; }
+    .comp-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; margin-bottom: 6px; }
+
+    .grant-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .grant-row:last-child { border-bottom: none; }
+    .subhead { font-size: 16px; margin: 24px 0 10px; }
+    .access-code {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 30px; font-weight: 700; letter-spacing: 3px; text-align: center;
+      color: var(--primary); background: #F0F4FF;
+      border: 1.5px dashed var(--primary); border-radius: var(--radius-sm);
+      padding: 16px 12px; margin-top: 16px;
+    }
+    .scope-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    @media (max-width: 768px) {
+      .comp-grid { grid-template-columns: 1fr; }
+      .scope-list { grid-template-columns: 1fr; }
+      .profile-score { max-width: none; margin: 0 auto; }
+    }
+  </style>
+  <script src="js/data.js" defer></script>
+  <script src="js/shared.js" defer></script>
+  <script src="js/citizen.js" defer></script>
+</head>
+<body>
+
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+
+      <!-- 1. Шапка профиля -->
+      <section class="section" aria-label="Профиль гражданина">
+        <div class="card" id="profile-card"></div>
+      </section>
+
+      <!-- 2. Моя траектория -->
+      <section class="section" aria-labelledby="trajectory-title">
+        <h2 class="section-title" id="trajectory-title">Моя траектория</h2>
+        <div class="card">
+          <ul class="timeline" id="trajectory-timeline"></ul>
+        </div>
+      </section>
+
+      <!-- 3. Компетенции -->
+      <section class="section" aria-labelledby="comp-title">
+        <h2 class="section-title" id="comp-title">Компетенции</h2>
+        <div class="card">
+          <div class="comp-grid">
+            <div id="radar-host"></div>
+            <div id="comp-bars"></div>
+          </div>
+          <p class="small muted" style="margin:16px 0 0">Оценки рассчитаны алгоритмом скоринга по верифицированным данным об образовании, стаже и производственным показателям.</p>
+        </div>
+      </section>
+
+      <!-- 4. Доступ к моему профилю (контур ФЗ-152) -->
+      <section class="section" aria-labelledby="access-title">
+        <h2 class="section-title" id="access-title">Доступ к моему профилю</h2>
+        <div class="card">
+          <p class="muted" style="margin-bottom:4px">
+            Работодатель видит профиль только после вашего разрешения. Обработка данных ведётся в контуре требований
+            152-ФЗ «О персональных данных»: вы сами выбираете разделы, срок доступа и видите каждое обращение к профилю.
+          </p>
+
+          <h3 class="subhead">Активные доступы</h3>
+          <div id="grants-list"></div>
+
+          <h3 class="subhead">Журнал доступа</h3>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Дата и время</th>
+                  <th>Организация</th>
+                  <th>Действие</th>
+                </tr>
+              </thead>
+              <tbody id="access-log-body"></tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:20px">
+            <button class="btn btn-primary" id="btn-gen-code" type="button">Сформировать код доступа</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="app-bottomnav"></div>
+  <footer id="app-footer"></footer>
+
+</body>
+</html>
