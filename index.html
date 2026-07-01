@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Траектория — Единая платформа кадрового аудита</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/data.js" defer></script>
+  <script src="js/shared.js" defer></script>
+  <script src="js/index.js" defer></script>
+</head>
+<body>
+
+  <header id="app-header"></header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-inner">
+        <img class="hero-logo" src="assets/logo.svg" alt="">
+        <span class="badge badge-demo">Демонстрационная версия MVP</span>
+        <h1>Траектория</h1>
+        <p class="hero-sub">Единая цифровая платформа сквозного мониторинга и развития кадрового потенциала</p>
+      </div>
+    </section>
+
+    <!-- Карточки-входы -->
+    <div class="container">
+      <div class="entry-grid">
+        <a class="card entry-card" href="citizen.html">
+          <span class="entry-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+          </span>
+          <h2>Гражданину</h2>
+          <p>Мой цифровой профиль и траектория</p>
+          <span class="entry-arrow">&#8594;</span>
+        </a>
+
+        <a class="card entry-card" href="employer.html">
+          <span class="entry-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8.5 7V5.5A2.5 2.5 0 0 1 11 3h2a2.5 2.5 0 0 1 2.5 2.5V7"/><path d="M3 12.5h18"/></svg>
+          </span>
+          <h2>Работодателю</h2>
+          <p>Умный подбор верифицированных кадров</p>
+          <span class="entry-arrow">&#8594;</span>
+        </a>
+
+        <a class="card entry-card" href="analytics.html">
+          <span class="entry-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 20v-6"/><path d="M12 20V6"/><path d="M18.5 20v-10"/><path d="M3 20h18"/></svg>
+          </span>
+          <h2>Ведомству</h2>
+          <p>Аналитика кадрового потенциала региона</p>
+          <span class="entry-arrow">&#8594;</span>
+        </a>
+      </div>
+
+      <!-- Как это работает -->
+      <section class="section">
+        <h2 class="section-title">Как это работает</h2>
+        <div class="steps">
+          <div class="card step">
+            <span class="step-num">1</span>
+            <p>Профиль собирается из верифицированных государственных источников</p>
+          </div>
+          <div class="card step">
+            <span class="step-num">2</span>
+            <p>Алгоритм объективного скоринга компетенций</p>
+          </div>
+          <div class="card step">
+            <span class="step-num">3</span>
+            <p>Ранжированный топ-лист для работодателя без субъективизма</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Источники данных -->
+      <section class="section">
+        <h2 class="section-title">Источники данных</h2>
+        <div class="chips-row">
+          <span class="chip">Госуслуги (ЕСИА)</span>
+          <span class="chip">Рособрнадзор</span>
+          <span class="chip">ФРДО</span>
+          <span class="chip">СФР &middot; Электронная трудовая книжка</span>
+          <span class="chip">ЕГЭ</span>
+        </div>
+      </section>
+
+      <!-- Полоса цифр (демо) -->
+      <section class="section">
+        <div class="card stats-strip">
+          <div class="stat">
+            <span class="stat-value" id="stat-profiles">12 480</span>
+            <span class="stat-label">профилей граждан</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-vacancies">486</span>
+            <span class="stat-label">закрытых вакансий</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-days">9 дней</span>
+            <span class="stat-label" id="stat-days-label">срок подбора вместо 42 дней</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="app-bottomnav"></div>
+  <footer id="app-footer"></footer>
+
+</body>
+</html>
