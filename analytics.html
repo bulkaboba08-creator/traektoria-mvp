@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Траектория — Аналитика региона</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* --- Локальные стили страницы аналитики (только var(--токены)) --- */
+    .page-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 16px;
+      margin: 30px 0 22px;
+    }
+    .page-head h1 { font-size: 28px; margin: 0 0 4px; }
+    .page-head .page-sub { margin: 0; }
+    .page-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-left: auto;
+    }
+    .page-controls select { width: auto; min-width: 265px; padding-top: 10px; padding-bottom: 10px; font-size: 15px; }
+
+    .chart-svg { width: 100%; height: auto; display: block; }
+    .card h2 { font-size: 18px; }
+    .card .chart-hint { margin: -6px 0 14px; }
+
+    /* Столбчатая диаграмма */
+    .bar-group rect.bar { fill: var(--primary); transition: fill .15s ease; cursor: default; }
+    .bar-group:hover rect.bar { fill: var(--primary-dark); }
+    .bar-group .bar-val { font-size: 15px; font-weight: 700; fill: var(--navy); }
+    .bar-group .bar-label { font-size: 13px; fill: var(--text-2); }
+    .axis-line { stroke: var(--border); stroke-width: 1.5; }
+    .grid-line { stroke: var(--border); stroke-dasharray: 4 4; }
+
+    /* Линейный график роста */
+    .lc-area { fill: var(--primary); opacity: .12; }
+    .lc-line { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .lc-dot { fill: var(--card); stroke: var(--primary); stroke-width: 2.5; transition: fill .15s ease; }
+    .lc-dot:hover { fill: var(--primary); }
+    .lc-val { font-size: 13px; font-weight: 700; fill: var(--navy); }
+    .lc-month { font-size: 11.5px; fill: var(--text-2); }
+    .lc-ylabel { font-size: 11px; fill: var(--text-2); }
+
+    /* Donut-карточки */
+    .donut-card { display: flex; align-items: center; gap: 20px; }
+    .donut-card svg { flex-shrink: 0; }
+    .donut-ring { fill: none; stroke: var(--border); }
+    .donut-val { fill: none; stroke: var(--primary); stroke-linecap: round; }
+    .donut-val--success { stroke: var(--success); }
+    .donut-num { font-size: 30px; font-weight: 800; fill: var(--navy); }
+    .donut-card h2 { margin-bottom: 6px; }
+    .donut-card p { margin: 0; }
+
+    /* Таблица вузов */
+    .uni-bar-cell { min-width: 200px; }
+    .uni-rate { font-weight: 700; white-space: nowrap; }
+
+    /* Экспорт */
+    .export-row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    @media (max-width: 768px) {
+      .page-head { margin: 22px 0 16px; }
+      .page-head h1 { font-size: 24px; }
+      .page-controls { margin-left: 0; width: 100%; }
+      .page-controls select { min-width: 0; flex: 1; }
+    }
+  </style>
+  <script src="js/data.js" defer></script>
+  <script src="js/shared.js" defer></script>
+  <script src="js/analytics.js" defer></script>
+</head>
+<body>
+
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+
+      <!-- 1. Шапка раздела -->
+      <div class="page-head">
+        <div>
+          <h1>Аналитика кадрового потенциала</h1>
+          <p class="page-sub muted">Панель ведомства</p>
+        </div>
+        <div class="page-controls">
+          <label class="small muted" for="region-select">Регион</label>
+          <select id="region-select" aria-label="Выбор региона">
+            <option selected>Республика Башкортостан</option>
+            <option disabled>Республика Татарстан (демо)</option>
+            <option disabled>Челябинская область (демо)</option>
+            <option disabled>Оренбургская область (демо)</option>
+          </select>
+          <span class="chip active chip-static" aria-label="Отчётный год">2026</span>
+        </div>
+      </div>
+
+      <!-- 2. KPI-карточки -->
+      <section class="section" aria-label="Ключевые показатели">
+        <div class="grid-4" id="kpi-row"></div>
+      </section>
+
+      <!-- 3. Дефицит по отраслям -->
+      <section class="section">
+        <div class="card">
+          <h2>Дефицит специалистов по отраслям</h2>
+          <p class="chart-hint small muted">Открытые потребности предприятий региона, человек</p>
+          <div id="deficit-chart"></div>
+        </div>
+      </section>
+
+      <!-- 4. Рост профилей -->
+      <section class="section">
+        <div class="card">
+          <h2>Рост верифицированных профилей за 2026 год</h2>
+          <p class="chart-hint small muted">Накопленное число профилей в реестре, по месяцам</p>
+          <div id="growth-chart"></div>
+        </div>
+      </section>
+
+      <!-- 5. Donut-карточки -->
+      <section class="section">
+        <div class="grid-2" id="donut-row"></div>
+      </section>
+
+      <!-- 6. Трудоустройство выпускников -->
+      <section class="section">
+        <div class="card">
+          <h2>Трудоустройство выпускников по вузам</h2>
+          <p class="chart-hint small muted">Доля выпускников 2025 года, трудоустроенных по специальности</p>
+          <div class="table-wrap">
+            <table class="table" id="uni-table">
+              <thead>
+                <tr>
+                  <th>Вуз</th>
+                  <th class="uni-bar-cell">Доля трудоустройства</th>
+                  <th>Значение</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Экспорт отчёта -->
+      <section class="section">
+        <div class="card">
+          <h2>Экспорт отчёта</h2>
+          <p class="muted">Сводный отчёт по кадровому потенциалу региона для руководства ведомства.</p>
+          <div class="export-row">
+            <button type="button" class="btn btn-secondary" id="export-pdf">Скачать PDF</button>
+            <button type="button" class="btn btn-secondary" id="export-xlsx">Скачать XLSX</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="app-bottomnav"></div>
+  <footer id="app-footer"></footer>
+
+</body>
+</html>
