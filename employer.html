@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Траектория — Кабинет работодателя</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Локальные стили страницы «Кабинет работодателя» (только var(--токены)) */
+    .org-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .org-id { display: flex; align-items: center; gap: 16px; flex: 1 1 320px; min-width: 0; }
+    .org-id > div { min-width: 0; }
+    .org-name { font-size: 22px; margin: 0 0 6px; overflow-wrap: break-word; min-width: 0; }
+    .org-sub { color: var(--text-2); margin: 0; }
+
+    .params-block { border-top: 1px solid var(--border); padding-top: 18px; margin-top: 18px; }
+    .params-block:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .block-title { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+    .block-hint { font-size: 13px; color: var(--text-2); margin: 0 0 14px; }
+    .params-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; }
+    .range-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    .range-val { font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+    .inline-num { width: 84px; flex: 0 0 auto; }
+    .check-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .check-line:last-child { margin-bottom: 0; }
+    .run-row { margin-top: 22px; }
+
+    /* Результаты */
+    .results-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .cand-card { margin-bottom: 14px; }
+    .cand-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .rank-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: #E4ECFF; color: var(--primary); font-weight: 800; font-size: 17px;
+    }
+    .rank-badge.gold { background: #FCEFC7; color: #B47D00; }
+    .cand-id { flex: 1 1 240px; min-width: 0; }
+    .cand-name { font-size: 18px; font-weight: 700; margin: 0 0 2px; overflow-wrap: break-word; }
+    .cand-meta { color: var(--text-2); font-size: 14px; margin: 0; overflow-wrap: break-word; }
+    .cand-spec { font-size: 14px; margin: 2px 0 0; overflow-wrap: break-word; }
+    .cand-ring { margin-left: auto; }
+    .cand-chips { margin-top: 14px; }
+    .cand-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+
+    .breakdown-wrap { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .bd-points { font-weight: 700; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .bd-ok { color: var(--success); }
+    .bd-no { color: var(--text-2); }
+
+    /* Свёрнутый список «не прошли обязательные требования» */
+    .rejected-toggle {
+      width: 100%; text-align: left; background: #F7F9FD; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer;
+      font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .rejected-toggle:hover { background: #EFF3FA; }
+    .rejected-list { margin-top: 10px; }
+    .rejected-row {
+      display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+      padding: 10px 4px; border-bottom: 1px solid var(--border); color: var(--text-2);
+    }
+    .rejected-row:last-child { border-bottom: none; }
+    .rejected-row .rr-name { font-weight: 600; color: var(--text-2); flex: 1 1 160px; min-width: 0; overflow-wrap: break-word; }
+    .rejected-row .rr-reason { font-size: 14px; }
+
+    /* Модалка полного профиля */
+    .mp-section { margin-top: 18px; }
+    .mp-section:first-child { margin-top: 0; }
+    .mp-section h4 { font-size: 15px; margin: 0 0 8px; }
+    .mp-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .mp-row:last-child { border-bottom: none; }
+    .mp-role { font-weight: 600; }
+    .mp-north { background: #EFF4FF; border: 1px solid #C9D8FF; border-radius: var(--radius-sm); padding: 12px 14px; }
+
+    @media (max-width: 768px) {
+      .params-grid { grid-template-columns: 1fr; }
+      .cand-ring { margin-left: 0; }
+    }
+  </style>
+  <script src="js/data.js" defer></script>
+  <script src="js/shared.js" defer></script>
+  <script src="js/employer.js" defer></script>
+</head>
+<body>
+
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+
+      <!-- 1. Шапка кабинета -->
+      <section class="section" aria-label="Организация">
+        <div class="card">
+          <div class="org-head">
+            <div class="org-id">
+              <span class="avatar avatar-lg" aria-hidden="true">ГТ</span>
+              <div>
+                <h1 class="org-name">АО «ГеоТех»</h1>
+                <p class="org-sub">Кабинет работодателя &middot; умный подбор кадров</p>
+              </div>
+            </div>
+            <span class="badge badge-verified">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>
+              Организация верифицирована
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Параметры подбора -->
+      <section class="section" aria-labelledby="params-title">
+        <h2 class="section-title" id="params-title">Параметры подбора</h2>
+        <div class="card">
+
+          <div class="field">
+            <label for="f-vacancy">Вакансия</label>
+            <select id="f-vacancy"></select>
+            <span class="field-hint" id="vacancy-org"></span>
+          </div>
+
+          <!-- Обязательные требования -->
+          <div class="params-block">
+            <p class="block-title">Обязательные требования</p>
+            <p class="block-hint">Кандидаты, не прошедшие любой из этих критериев, отсеиваются из топ-листа.</p>
+            <div class="params-grid">
+              <div class="field" style="margin:0">
+                <label for="f-education">Уровень образования</label>
+                <select id="f-education">
+                  <option value="">Не важно</option>
+                  <option value="ВО">Высшее (ВО)</option>
+                  <option value="СПО">Среднее профессиональное (СПО)</option>
+                </select>
+              </div>
+              <div class="field" style="margin:0">
+                <label id="exp-label" for="f-exp">Минимальный стаж</label>
+                <div class="range-row">
+                  <input type="range" id="f-exp" min="0" max="10" step="1" value="0" aria-labelledby="exp-label">
+                  <span class="range-val" id="exp-val">0 лет</span>
+                </div>
+              </div>
+            </div>
+            <div class="field" style="margin:16px 0 0">
+              <label>Отрасль <span class="field-hint" style="font-weight:400">(можно выбрать несколько)</span></label>
+              <div class="chips-row" id="industry-chips" role="group" aria-label="Отрасль"></div>
+            </div>
+          </div>
+
+          <!-- Желательно (скоринг) -->
+          <div class="params-block">
+            <p class="block-title">Желательно <span class="block-hint" style="display:inline">(влияет на скоринг)</span></p>
+            <p class="block-hint">Эти критерии не отсеивают кандидатов, а повышают их место в ранжировании.</p>
+
+            <div class="check-line">
+              <label class="checkbox-row" for="f-north">
+                <input type="checkbox" id="f-north">
+                Северный стаж (РКС) от
+              </label>
+              <input type="number" class="inline-num" id="f-north-years" min="1" max="15" step="1" value="2" aria-label="Северный стаж, лет">
+            </div>
+
+            <label class="checkbox-row" for="f-dpo" style="margin-bottom:12px">
+              <input type="checkbox" id="f-dpo">
+              Наличие программ ДПО
+            </label>
+
+            <div class="field" style="margin:0 0 12px">
+              <div class="range-row">
+                <label id="gpa-label" for="f-gpa" style="margin:0">Средний балл диплома от</label>
+                <span class="range-val" id="gpa-val">3.0</span>
+              </div>
+              <input type="range" id="f-gpa" min="3.0" max="5.0" step="0.1" value="3.0" aria-labelledby="gpa-label">
+            </div>
+
+            <div class="field" style="margin:0 0 14px">
+              <div class="range-row">
+                <label id="ege-label" for="f-ege" style="margin:0">Профильный ЕГЭ (математика) от</label>
+                <span class="range-val" id="ege-val">50</span>
+              </div>
+              <input type="range" id="f-ege" min="50" max="100" step="1" value="50" aria-labelledby="ege-label">
+            </div>
+
+            <label class="checkbox-row" for="f-kpi">
+              <input type="checkbox" id="f-kpi">
+              Производственные KPI (рацпредложения, проекты)
+            </label>
+          </div>
+
+          <div class="run-row">
+            <button class="btn btn-primary" id="btn-run" type="button">Запустить подбор</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Прогресс подбора -->
+      <section class="section" id="progress-section" hidden aria-label="Ход подбора">
+        <div class="card">
+          <h3 style="margin:0 0 16px">Идёт подбор…</h3>
+          <ul class="timeline" id="progress-timeline"></ul>
+        </div>
+      </section>
+
+      <!-- 4. Результаты -->
+      <section class="section" id="results-section" hidden aria-labelledby="results-title">
+        <h2 class="section-title" id="results-title">Топ кандидатов</h2>
+        <div id="results-host"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="app-bottomnav"></div>
+  <footer id="app-footer"></footer>
+
+</body>
+</html>
