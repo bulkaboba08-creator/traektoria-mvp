@@ -185,6 +185,16 @@
   /* ==========================================================================
      Шаг 2. Прогноз кадровой потребности
      ========================================================================== */
+  function setHorizon(key) {
+    STATE.horizon = key;
+    var host = document.getElementById('horizon-seg');
+    [].forEach.call(host.children, function (c) {
+      c.classList.toggle('active', c.getAttribute('data-h') === key);
+    });
+    renderForecast();
+    renderReadout();
+  }
+
   function renderHorizonSeg() {
     var host = document.getElementById('horizon-seg');
     host.innerHTML = HORIZONS.map(function (h) {
@@ -193,11 +203,7 @@
     }).join('');
     host.addEventListener('click', function (e) {
       var b = e.target.closest('button');
-      if (!b) return;
-      STATE.horizon = b.getAttribute('data-h');
-      [].forEach.call(host.children, function (c) { c.classList.toggle('active', c === b); });
-      renderForecast();
-      renderReadout();
+      if (b) setHorizon(b.getAttribute('data-h'));
     });
   }
 
@@ -293,8 +299,13 @@
     range.addEventListener('input', function () {
       STATE.robo = +range.value;
       val.textContent = ROBO[STATE.robo] + '%';
-      renderForecast();
-      renderReadout();
+      // эффект роботизации виден на дальнем горизонте — сразу показываем его
+      if (STATE.horizon !== 'strategy') {
+        setHorizon('strategy');
+      } else {
+        renderForecast();
+        renderReadout();
+      }
       updateRecommendations();
     });
   }
