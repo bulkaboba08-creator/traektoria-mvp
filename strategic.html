@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Траектория — Кадровое планирование и прогноз КЦП</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* --- Локальные стили вкладки «Кадровое планирование» (только var(--токены)) --- */
+    .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin: 30px 0 22px; }
+    .page-head h1 { font-size: 28px; margin: 0 0 4px; }
+    .page-head .page-sub { margin: 0; max-width: 680px; }
+    .page-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-left: auto; }
+    .page-controls select { width: auto; min-width: 250px; padding-top: 10px; padding-bottom: 10px; font-size: 15px; }
+
+    .card h2 { font-size: 18px; }
+    .card .chart-hint { margin: -6px 0 16px; }
+    .chart-svg { width: 100%; height: auto; display: block; }
+    .block-num { display: inline-block; min-width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 8px;
+      background: var(--primary); color: #fff; font-size: 14px; font-weight: 700; margin-right: 8px; }
+
+    /* Фильтр отраслей */
+    .ind-filter { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; }
+
+    /* --- Карта --- */
+    .map-layout { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr); gap: 24px; align-items: start; }
+    .map-wrap { position: relative; }
+    #bash-map { width: 100%; height: auto; display: block; }
+    #bash-map path { stroke: #FFFFFF; stroke-width: 0.8; cursor: pointer; transition: opacity .12s ease; }
+    #bash-map path:hover { opacity: .82; }
+    #bash-map path.sel { stroke: var(--navy); stroke-width: 2.4; }
+
+    .map-tooltip { position: absolute; z-index: 5; pointer-events: none; background: var(--navy); color: #fff;
+      padding: 9px 12px; border-radius: 10px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 6px 20px rgba(16,24,40,.28);
+      opacity: 0; transform: translateY(4px); transition: opacity .12s ease; max-width: 250px; }
+    .map-tooltip.show { opacity: 1; transform: translateY(0); }
+    .map-tooltip b { display: block; font-size: 13.5px; margin-bottom: 3px; }
+    .map-tooltip ol { margin: 4px 0 0; padding-left: 18px; }
+    .map-tooltip .mt-idx { display: inline-block; margin-top: 3px; padding: 1px 7px; border-radius: 999px; font-weight: 700; font-size: 11.5px; }
+
+    .legend { display: flex; flex-direction: column; gap: 9px; margin: 0 0 20px; }
+    .legend-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); }
+    .legend-sw { width: 26px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    .legend-row small { color: var(--text-2); }
+
+    .side-title { font-weight: 600; margin: 0 0 10px; }
+    .top-list { list-style: none; margin: 0; padding: 0; }
+    .top-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .top-list li:last-child { border-bottom: none; }
+    .top-list li:hover { background: #F7F9FD; }
+    .tl-dot { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+    .tl-name { flex: 1; min-width: 0; font-weight: 500; }
+    .tl-val { font-weight: 700; white-space: nowrap; }
+
+    /* --- Селектор горизонта --- */
+    .seg { display: inline-flex; flex-wrap: wrap; gap: 6px; background: #EEF1F7; padding: 5px; border-radius: 12px; margin: 0 0 14px; }
+    .seg button { border: none; background: transparent; padding: 9px 14px; border-radius: 8px; font-family: inherit; font-size: 14px;
+      font-weight: 600; color: var(--text-2); cursor: pointer; white-space: nowrap; }
+    .seg button.active { background: var(--card); color: var(--primary); box-shadow: var(--shadow); }
+
+    .kcp-readout { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; margin: 4px 0 14px;
+      padding: 14px 16px; background: #EFF4FF; border-radius: 12px; }
+    .kcp-readout b { font-size: 26px; font-weight: 800; color: var(--primary); }
+    .kcp-readout span { color: var(--text-2); font-size: 14px; }
+
+    /* Прогнозный график */
+    .fc-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0 6px; }
+    .fc-key { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+    .fc-line-sw { width: 22px; height: 0; border-top-width: 3px; border-top-style: solid; }
+    .fc-demand { border-color: var(--danger); }
+    .fc-ceil { border-color: #8A63D2; border-top-style: dashed; }
+    .fc-plan { border-color: var(--primary); }
+    .lc-grid { stroke: var(--border); stroke-dasharray: 4 4; }
+    .lc-axis { stroke: var(--border); stroke-width: 1.5; }
+    .lc-ylabel, .lc-xlabel { font-size: 11.5px; fill: var(--text-2); }
+    .zone-band { opacity: .5; }
+    .zone-label { font-size: 11.5px; font-weight: 600; }
+    .lc-demand { fill: none; stroke: var(--danger); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+    .lc-ceil { fill: none; stroke: #8A63D2; stroke-width: 2.2; stroke-dasharray: 6 5; stroke-linejoin: round; stroke-linecap: round; }
+    .lc-plan { fill: none; stroke: var(--primary); stroke-width: 2.8; stroke-linejoin: round; stroke-linecap: round; }
+    .lc-planarea { fill: var(--primary); opacity: .08; }
+
+    /* Ползунок роботизации */
+    .robo { margin: 18px 0 4px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; }
+    .robo-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .robo-head b { font-size: 15px; }
+    .robo-val { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .robo-ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .robo-note { margin: 8px 0 0; font-size: 13px; }
+
+    /* Таблица КЦП */
+    .kcp-dir { color: var(--text-2); font-size: 13px; }
+    .kcp-delta { font-weight: 700; white-space: nowrap; }
+    .kcp-delta.up { color: var(--success); }
+    .kcp-delta.down { color: var(--danger); }
+    .prio { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .prio-high { background: #FDECEC; color: var(--danger); }
+    .prio-mid { background: var(--warn-bg); color: var(--warn); }
+    .prio-low { background: #EEF1F6; color: var(--text-2); }
+
+    /* Директивы системы */
+    .sysreco { border-left: 4px solid var(--primary); background: #F7F9FD; border-radius: 0 12px 12px 0; padding: 16px 18px; }
+    .sysreco .sr-tag { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--primary);
+      text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+    .sysreco .sr-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+    #system-recommendations { margin: 0; font-size: 15px; line-height: 1.6; }
+    #system-recommendations b { color: var(--navy); }
+
+    .export-row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    @media (max-width: 860px) {
+      .map-layout { grid-template-columns: 1fr; gap: 18px; }
+      .map-wrap { max-width: 460px; margin: 0 auto; width: 100%; }
+    }
+    @media (max-width: 768px) {
+      .page-head { margin: 22px 0 16px; }
+      .page-head h1 { font-size: 22px; }
+      .page-controls { margin-left: 0; width: 100%; }
+      .page-controls select { min-width: 0; flex: 1; }
+    }
+  </style>
+  <script src="js/data.js" defer></script>
+  <script src="js/bashmap.js" defer></script>
+  <script src="js/govdata.js" defer></script>
+  <script src="js/shared.js" defer></script>
+  <script src="js/strategic.js" defer></script>
+</head>
+<body>
+
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+
+      <!-- Шапка раздела -->
+      <div class="page-head">
+        <div>
+          <h1>Кадровое планирование и прогноз КЦП</h1>
+          <p class="page-sub muted">Панель ведомства. Директивный 7-летний горизонт (нацпроект «Кадры», Минтруд России, срез 2026 → 2033) с демографическим и стратегическим сценариями.</p>
+        </div>
+        <div class="page-controls">
+          <label class="small muted" for="region-select">Регион</label>
+          <select id="region-select" aria-label="Выбор региона">
+            <option selected>Республика Башкортостан</option>
+            <option disabled>Республика Татарстан (демо)</option>
+            <option disabled>Челябинская область (демо)</option>
+          </select>
+          <span class="chip active chip-static" aria-label="Срез планирования">срез 2026</span>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <section class="section" aria-label="Ключевые показатели">
+        <div class="grid-4" id="kpi-row"></div>
+      </section>
+
+      <!-- Шаг 1. Карта кадрового дисбаланса -->
+      <section class="section">
+        <div class="card">
+          <h2><span class="block-num">1</span>Интерактивная карта кадрового дисбаланса</h2>
+          <p class="chart-hint small muted">Республика Башкортостан, 63 муниципальных образования. Цвет района — индекс дефицита (вакансии стратегических предприятий ÷ выпускники по профилю). Выберите отрасль и наведите курсор на район.</p>
+          <div class="ind-filter" id="ind-filter" role="group" aria-label="Фильтр отраслей"></div>
+          <div class="map-layout">
+            <div class="map-wrap">
+              <div id="bash-map"></div>
+              <div class="map-tooltip" id="map-tooltip"></div>
+            </div>
+            <div>
+              <div class="legend" id="map-legend"></div>
+              <p class="side-title">Территории с наибольшим дефицитом</p>
+              <ul class="top-list" id="top-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Шаг 2. Прогноз кадровой потребности и КЦП -->
+      <section class="section">
+        <div class="card">
+          <h2><span class="block-num">2</span>Прогноз кадровой потребности и КЦП</h2>
+          <p class="chart-hint small muted">Тыс. специалистов в год. Выберите горизонт планирования — методология Минтруда делит прогноз на тактическую, демографическую и стратегическую зоны.</p>
+          <div class="seg" id="horizon-seg" role="group" aria-label="Горизонт планирования"></div>
+          <div class="kcp-readout" id="kcp-readout"></div>
+          <div class="fc-legend">
+            <span class="fc-key"><span class="fc-line-sw fc-demand"></span>Потребность экономики</span>
+            <span class="fc-key"><span class="fc-line-sw fc-plan"></span>План КЦП (выпуск вузов)</span>
+            <span class="fc-key"><span class="fc-line-sw fc-ceil"></span>Демографический потолок</span>
+          </div>
+          <div id="forecast-chart"></div>
+          <div class="robo">
+            <div class="robo-head">
+              <b>Уровень роботизации и внедрения ИИ</b>
+              <span class="robo-val" id="robo-val">0%</span>
+            </div>
+            <input type="range" id="robo-range" min="0" max="3" step="1" value="0" aria-label="Уровень роботизации и ИИ">
+            <div class="robo-ticks"><span>0%</span><span>20%</span><span>50%</span><span>80%</span></div>
+            <p class="robo-note muted">Влияет на дальний (стратегический) горизонт: автоматизация снижает потребность в рутинных инженерных кадрах к 2045–2056 годам. Переключите горизонт на «Стратегия · 30 лет», чтобы увидеть эффект.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Директивные КЦП по вузам -->
+      <section class="section">
+        <div class="card">
+          <h2>Директивные контрольные цифры приёма (приём 2027)</h2>
+          <p class="chart-hint small muted">Расчёт модели: серый — текущие бюджетные места, синий — рекомендованные с учётом дефицита и демографии.</p>
+          <div class="table-wrap">
+            <table class="table" id="kcp-table">
+              <thead>
+                <tr><th>Вуз и направление</th><th>Текущие</th><th>Рекомендовано</th><th>Δ</th><th>Приоритет</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Шаг 3. Директивы системы -->
+      <section class="section">
+        <div class="card">
+          <h2><span class="block-num">3</span>Автоматические директивы системы</h2>
+          <div class="sysreco">
+            <span class="sr-tag">ИС «Траектория» · аналитический модуль</span>
+            <p id="system-recommendations"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Экспорт -->
+      <section class="section">
+        <div class="card">
+          <h2>Экспорт отчёта</h2>
+          <p class="muted">Стратегический отчёт по планированию кадрового потенциала региона на горизонт до 2033 года.</p>
+          <div class="export-row">
+            <button type="button" class="btn btn-secondary" id="export-pdf">Скачать PDF</button>
+            <button type="button" class="btn btn-secondary" id="export-xlsx">Скачать XLSX</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="app-bottomnav"></div>
+  <footer id="app-footer"></footer>
+
+</body>
+</html>
