@@ -6,6 +6,28 @@
   <title>Траектория — Единая платформа кадрового аудита</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* --- Сравнение с аналогами (только var(--токены)) --- */
+    .cmp-lead { font-size: 15.5px; margin: 0 0 18px; max-width: 760px; }
+    .cmp-lead b { color: var(--navy); }
+    .cmp-table { min-width: 660px; }
+    .cmp-table th, .cmp-table td { text-align: center; }
+    .cmp-table th:first-child, .cmp-table td:first-child { text-align: left; font-weight: 500; color: var(--navy); }
+    .cmp-table thead th { font-size: 13.5px; color: var(--text-2); font-weight: 600; }
+    .cmp-table thead th.cmp-us { color: var(--primary); font-weight: 700; font-size: 14.5px; }
+    .cmp-table td.cmp-us-cell, .cmp-table th.cmp-us { background: #EEF4FF; }
+    .cmp-table tbody tr:hover td.cmp-us-cell { background: #E4ECFF; }
+    .st { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; font-weight: 700; font-size: 15px; }
+    .st-yes { background: var(--success-bg); color: var(--success); }
+    .st-part { background: var(--warn-bg); color: var(--warn); }
+    .st-no { background: #EEF1F6; color: #9AA4B2; }
+    .cmp-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; font-size: 13px; color: var(--text-2); }
+    .cmp-legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .cmp-callout { margin-top: 18px; padding: 16px 18px; background: var(--hero-grad); border-radius: var(--radius-sm); color: #fff; }
+    .cmp-callout b { font-weight: 700; }
+    .cmp-callout p { margin: 0; font-size: 14.5px; line-height: 1.5; color: rgba(255,255,255,.92); }
+    .cmp-callout .cmp-tag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #A9C4FF; margin-bottom: 6px; }
+  </style>
   <script src="js/data.js" defer></script>
   <script src="js/shared.js" defer></script>
   <script src="js/index.js" defer></script>
@@ -84,6 +106,80 @@
           <span class="chip">ФРДО</span>
           <span class="chip">СФР &middot; Электронная трудовая книжка</span>
           <span class="chip">ЕГЭ</span>
+        </div>
+      </section>
+
+      <!-- Чем отличается: сравнение с аналогами -->
+      <section class="section">
+        <h2 class="section-title">Чем «Траектория» отличается</h2>
+        <div class="card">
+          <p class="cmp-lead">Существующие сервисы закрывают лишь часть задачи: одни только верифицируют данные, другие только оценивают навыки. «Траектория» первой объединяет верификацию, скоринг и планирование сразу для трёх сегментов — гражданина, работодателя и государства. <b>Полных аналогов нет ни в России, ни в мире.</b></p>
+          <div class="table-wrap">
+            <table class="table cmp-table">
+              <thead>
+                <tr>
+                  <th>Функция</th>
+                  <th class="cmp-us">«Траектория»</th>
+                  <th>Госуслуги</th>
+                  <th>HR-tech платформы</th>
+                  <th>Международные аналоги</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Авто-сбор из госисточников</td>
+                  <td class="cmp-us-cell"><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-part" title="частично">◐</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                </tr>
+                <tr>
+                  <td>Скоринг компетенций</td>
+                  <td class="cmp-us-cell"><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                  <td><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-yes" title="есть">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Подбор персонала</td>
+                  <td class="cmp-us-cell"><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                  <td><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-part" title="частично">◐</span></td>
+                </tr>
+                <tr>
+                  <td>Аналитика для ведомств</td>
+                  <td class="cmp-us-cell"><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-part" title="частично">◐</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                </tr>
+                <tr>
+                  <td>Интеграция с госуслугами</td>
+                  <td class="cmp-us-cell"><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                  <td><span class="st st-no" title="нет">✕</span></td>
+                </tr>
+                <tr>
+                  <td>Верификация данных</td>
+                  <td class="cmp-us-cell"><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-yes" title="есть">✓</span></td>
+                  <td><span class="st st-part" title="частично">◐</span></td>
+                  <td><span class="st st-yes" title="есть">✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="cmp-legend">
+            <span><span class="st st-yes">✓</span> есть</span>
+            <span><span class="st st-part">◐</span> частично</span>
+            <span><span class="st st-no">✕</span> нет</span>
+          </div>
+          <div class="cmp-callout">
+            <span class="cmp-tag">Новая категория</span>
+            <p>«Траектория» — не копия существующих сервисов, а <b>новая категория: государственная платформа управления кадровым потенциалом на основе верифицированных данных.</b> Уникальная инфраструктура России (ЕСИА, ФРДО, СФР) позволяет создать то, чего пока нет даже в мире, с потенциалом экспорта в страны СНГ.</p>
+          </div>
         </div>
       </section>
 
